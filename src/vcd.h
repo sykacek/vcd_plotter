@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+#define STEP		(1)
+
 
 /* VCD SIGNAL STRUCT */
 typedef struct {
@@ -15,7 +17,7 @@ typedef struct {
 	char name[64];	// name
 	size_t tlen;	// dynamic size
 	size_t vlen;	// dynamic size
-	int *time;		// dynamic time array
+	float *time;		// dynamic time array
 	char **val;		// count * len
 } vcd_sig_t;
 
@@ -23,7 +25,7 @@ vcd_sig_t *vcd_sig_init(void);
 void vcd_sig_free(vcd_sig_t **sig);
 
 // update values array;
-void vcd_sig_update_values(vcd_sig_t *sig, char *val, size_t len, int time);
+void vcd_sig_update_values(vcd_sig_t *sig, char *val, size_t len, float time);
 
 void vcd_sig_dump(vcd_sig_t *sig);
 
@@ -69,7 +71,7 @@ void vcd_dump_rec(vcd_t *vcd); // recursive dump
 // print signals in hierarchy
 void vcd_print_list(vcd_t *vcd);
 // update signal using c
-void vcd_update_sig(vcd_t *vcd, char c, char *val, size_t n, int time);
+void vcd_update_sig(vcd_t *vcd, char c, char *val, size_t n, float time);
 
 #endif //__VCD_H__
 

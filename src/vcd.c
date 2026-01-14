@@ -31,13 +31,26 @@ static void vcd_sig_resize(vcd_sig_t *sig, int vlen){
 	}
 }
 
-void vcd_sig_update_values(vcd_sig_t *sig, char *val, size_t len, int time){
-	sig->vlen++;
+void vcd_sig_update_values(vcd_sig_t *sig, char *val, size_t len, float time){
 	if(len != sig->count){
 #ifdef DEBUG
 		fprintf(stderr, "len and count do not match! %ld %d, %s %s\n", len, sig->count, val, sig->name);
 #endif
 	} else {
+		sig->vlen++;
+		vcd_sig_resize(sig, sig->vlen);
+		for(int i = 0; i < sig->count; ++i){
+			if(sig->vlen > 1)
+				sig->val[i][sig->vlen - 1] = sig->val[i][sig->vlen - 2];
+			else
+				sig->val[i][sig->vlen - 1] = '0';
+		}
+
+		//update time
+		sig->time = realloc(sig->time, sizeof(float) * sig->vlen);
+		sig->time[sig->vlen - 1] = time - 0.01f;
+
+		sig->vlen++;
 		vcd_sig_resize(sig, sig->vlen);
 		for(int i = 0; i < sig->count; ++i)
 			sig->val[i][sig->vlen - 1] = val[i];
@@ -78,13 +91,13 @@ void vcd_sig_fprint(vcd_sig_t *sig, FILE * fd){
 	fprintf(fd, "%s\n", sig->name);
 	for(int j = 0; j < sig->count; ++j){
 		for(int i = 0; i < sig->vlen; ++i)
-			fprintf(fd, "   %c", sig->val[j][i]);
+			fprintf(fd, "    %c", sig->val[j][i]);
 
 		fprintf(fd, "\n");
 	}
 
 	for(int i = 0; i < sig->vlen; ++i)
-		fprintf(fd, "%4d", sig->time[i]);
+		fprintf(fd, " %4d", (int)sig->time[i]);
 
 	fprintf(fd, "\n");
 }
@@ -156,10 +169,15 @@ void vcd_mod_fprint(vcd_mod_t *mod){
 
 		fprintf(fd, "\n");
 
+		// Z translates to -1
 		for(int k = 0; k < sig->vlen; ++k){
-			fprintf(fd, "%d", sig->time[k]);
-			for(int l = 0; l < sig->count; ++l)
-				fprintf(fd, "\t%d", sig->val[l][k]);
+			fprintf(fd, "%.2f", sig->time[k]);
+			for(int l = 0; l < sig->count; ++l){
+				if(sig->val[l][k] == 'z'){
+					fprintf(fd, "\t%d", -1 + STEP * i);
+				} else
+					fprintf(fd, "\t%d", sig->val[l][k] - 0x30 + STEP * i);
+			}
 
 			fprintf(fd, "\n");
 		}
@@ -279,7 +297,7 @@ vcd_t *vcd_read(char *file){
 				char id;
 				sscanf(line, "%s %c", val, &id);
 
-				vcd_update_sig(ret, id, val + 1, strlen(val) - 1, now);
+				vcd_update_sig(ret, id, val + 1, strlen(val) - 1, (float)now);
 			} else {
 				vcd_update_sig(ret, line[1], line, 1, now);
 			}
@@ -344,7 +362,7 @@ void vcd_print_list(vcd_t *vcd){
 
 }
 
-void vcd_update_sig(vcd_t *vcd, char c, char *val, size_t n, int time){
+void vcd_update_sig(vcd_t *vcd, char c, char *val, size_t n, float time){
 	vcd_mod_t *mod = NULL;
 	vcd_sig_t *sig = NULL;
 
