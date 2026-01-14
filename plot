@@ -27,6 +27,8 @@ for f in files:
 	ax.set_xlabel("time", loc='center')
 	ax.set_ylabel("Data")
 	#ax.set_title("")
+	if len(data[0]) == 0:
+		continue
 
 	plt.plot(data[0], data[1], label=f, color=colors[i])
 	i = i + 1

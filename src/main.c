@@ -16,7 +16,6 @@
 
 int main(int argc, char **argv){
 	param_t par = {
-		.in = "test.vcd",
 		.ok = false,
 	};
 

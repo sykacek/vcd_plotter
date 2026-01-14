@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define STEP		(1)
+#define STEP		(2)
 
 
 /* VCD SIGNAL STRUCT */

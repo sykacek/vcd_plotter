@@ -154,6 +154,9 @@ void vcd_mod_fprint(vcd_mod_t *mod){
 	char fname[128] = {0};
 	if (stat(".data", &st) == -1) {
 		mkdir(".data", 0744);
+	} else {
+		remove(".data");
+		mkdir(".data", 0744);
 	}
 
 
