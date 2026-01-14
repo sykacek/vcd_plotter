@@ -34,6 +34,6 @@ for f in files:
 	i = i + 1
 
 plt.legend()
-plt.savefig('graf.png', format='png')
+plt.savefig('plot.png', format='png')
 
 
