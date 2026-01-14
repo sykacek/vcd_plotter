@@ -8,6 +8,7 @@
 
 typedef struct {
 	char in[64];
+	bool fd;		// use different fd than stdout
 	char out[64];
 	bool list;
 	bool ok;
@@ -48,6 +49,7 @@ void param_read(param_t *par, int argc, char **argv){
 		if(strcmp(argv[i], "-o") == 0){
 			memset(par->out, 0x00, 64);
 			memcpy(par->out, argv[i + 1], strlen(argv[i + 1]));
+			par->fd = true;
 
 			i++;
 		}

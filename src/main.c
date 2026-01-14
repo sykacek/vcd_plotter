@@ -17,7 +17,6 @@
 int main(int argc, char **argv){
 	param_t par = {
 		.in = "test.vcd",
-		.out = "test.svg",
 		.ok = false,
 	};
 
@@ -33,16 +32,27 @@ int main(int argc, char **argv){
 		return 100;
 
 	if(par.list){
-		vcd_print_short(vcd);
+		vcd_print_list(vcd);
 	} 
 
+	FILE *fd = stdout;
+
+	if(par.fd){
+		fd = fopen(par.out, "w");
+	}
+
+	// TODO change print_module to mod_print
 	if(par.module)
-		vcd_print_module(vcd, par.module_i);
+		vcd_mod_fprint_short(vcd->mod[par.module_i], fd);
 
 	if(par.signal)
-		vcd_sig_print(vcd->mod[par.x]->sig[par.y]);
+		vcd_sig_fprint(vcd->mod[par.x]->sig[par.y], fd);
 
 	vcd_free(&vcd);
+
+	if(par.fd){
+		fclose(fd);
+	}
 
 	return 0;
 }

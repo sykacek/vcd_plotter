@@ -27,7 +27,7 @@ void vcd_sig_update_values(vcd_sig_t *sig, char *val, size_t len, int time);
 
 void vcd_sig_dump(vcd_sig_t *sig);
 
-void vcd_sig_print(vcd_sig_t *sig);
+void vcd_sig_fprint(vcd_sig_t *sig, FILE *fd);
 
 /* VCD MODULE STRUCT */
 typedef struct {
@@ -41,6 +41,9 @@ void vcd_mod_free(vcd_mod_t **mod);
 
 void vcd_mod_dump(vcd_mod_t *mod);
 void vcd_mod_dump_rec(vcd_mod_t *mod); //recursive 
+
+void vcd_mod_fprint(vcd_mod_t *mod, FILE *fd);
+void vcd_mod_fprint_short(vcd_mod_t *mod, FILE *fd);
 
 /* VCD GLOBAL STRUCT */
 typedef struct {
@@ -61,9 +64,7 @@ void vcd_dump(vcd_t *vcd);
 void vcd_dump_rec(vcd_t *vcd); // recursive dump
 
 // print signals in hierarchy
-void vcd_print_short(vcd_t *vcd);
-void vcd_print_module(vcd_t *vcd, int j);
-
+void vcd_print_list(vcd_t *vcd);
 // update signal using c
 void vcd_update_sig(vcd_t *vcd, char c, char *val, size_t n, int time);
 

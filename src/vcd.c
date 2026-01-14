@@ -37,9 +37,8 @@ void vcd_sig_update_values(vcd_sig_t *sig, char *val, size_t len, int time){
 			sig->val[i][sig->vlen - 1] = val[i];
 
 		//update time
-		sig->tlen++;
-		sig->time = realloc(sig->time, sizeof(int) * sig->tlen);
-		sig->time[sig->tlen - 1] = time;
+		sig->time = realloc(sig->time, sizeof(int) * sig->vlen);
+		sig->time[sig->vlen - 1] = time;
 	}
 }
 
@@ -65,28 +64,23 @@ void vcd_sig_dump(vcd_sig_t *sig){
 	printf("\tid        %c\n", sig->id);
 	printf("\tname      %s\n", sig->name);
 	printf("\trecords   %ld\n", sig->vlen);
-	printf("\ttime      %ld\n", sig->tlen);
 
-	for(int i = 0; i < sig->tlen; ++i){
-		//printf("%d \n", sig->time[i]);
-	}
-	
 	puts("");
 }
 
-void vcd_sig_print(vcd_sig_t *sig){
-	printf("%s\n", sig->name);
+void vcd_sig_fprint(vcd_sig_t *sig, FILE * fd){
+	fprintf(fd, "%s\n", sig->name);
 	for(int j = 0; j < sig->count; ++j){
 		for(int i = 0; i < sig->vlen; ++i)
-			printf("   %c", sig->val[j][i]);
+			fprintf(fd, "   %c", sig->val[j][i]);
 
-		puts("");
+		fprintf(fd, "\n");
 	}
 
-	for(int i = 0; i < sig->tlen; ++i)
-		printf("%4d", sig->time[i]);
+	for(int i = 0; i < sig->vlen; ++i)
+		fprintf(fd, "%4d", sig->time[i]);
 
-	puts("");
+	fprintf(fd, "\n");
 }
 
 /* 
@@ -127,6 +121,32 @@ void vcd_mod_dump_rec(vcd_mod_t *mod){
 	for(int i = 0; i < mod->len; ++i){
 		printf("Signal %d\n", i);
 		vcd_sig_dump(mod->sig[i]);
+	}
+}
+
+void vcd_mod_fprint_short(vcd_mod_t *mod, FILE *fd){
+	for(int i = 0; i < mod->len; ++i)
+		vcd_sig_fprint(mod->sig[i], fd);
+}
+
+void vcd_mod_fprint(vcd_mod_t *mod, FILE *fd){
+	fprintf(fd, "#");
+
+	for(int i = 0; i < mod->len; ++i){
+		fprintf(fd, "%s\t", mod->sig[i]->name);
+	}
+
+	fprintf(fd, "\n");
+	vcd_sig_t *sig = NULL;
+	for(int i = 0; i < mod->len; ++i){
+		sig = mod->sig[i];
+		for(int k = 0; k < sig->vlen; ++k){
+			fprintf(fd, "%d", sig->time[k]);
+			for(int l = 0; l < sig->count; ++l)
+				fprintf(fd, "\t%d", sig->val[k][l]);
+
+			fprintf(fd, "\n");
+		}
 	}
 }
 
@@ -287,7 +307,7 @@ void vcd_dump_rec(vcd_t *vcd){
 		vcd_mod_dump_rec(vcd->mod[i]);
 }
 
-void vcd_print_short(vcd_t *vcd){
+void vcd_print_list(vcd_t *vcd){
 	vcd_mod_t *mod = NULL;
 	vcd_sig_t *sig = NULL;
 
@@ -304,11 +324,6 @@ void vcd_print_short(vcd_t *vcd){
 		puts("");
 	}
 
-}
-
-void vcd_print_module(vcd_t *vcd, int j){
-	for(int i = 0; i < vcd->mod[j]->len; ++i)
-		vcd_sig_print(vcd->mod[j]->sig[i]);
 }
 
 void vcd_update_sig(vcd_t *vcd, char c, char *val, size_t n, int time){
