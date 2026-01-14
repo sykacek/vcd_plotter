@@ -1,0 +1,48 @@
+$date
+	Wed Jan 14 12:40:41 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ns
+$end
+$scope module app_tb $end
+$var reg 1 ! A $end
+$var reg 1 " B $end
+$scope begin $ivl_for_loop0 $end
+$var integer 32 # i [31:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+b0 #
+0"
+0!
+$end
+#10
+1"
+#20
+0"
+1!
+#30
+1"
+#40
+0"
+0!
+b1 #
+#50
+1"
+#60
+0"
+1!
+#70
+1"
+#80
+0!
+b10 #
+#90
