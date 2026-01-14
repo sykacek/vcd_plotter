@@ -17,6 +17,7 @@ typedef struct {
 	int y;
 	bool module;		// specify whole module
 	int module_i;		// specify whole module
+	bool sh;			//short
 } param_t;
 
 typedef enum {RES_OK, RES_FAILED} res_t;
@@ -58,6 +59,10 @@ void param_read(param_t *par, int argc, char **argv){
 			par->list = true;
 			par->ok = true;
 		}
+
+		if(strcmp(argv[i], "--short") == 0){
+			par->sh = true;
+		}
 	}
 };
 
@@ -66,6 +71,7 @@ void param_help(){
 	puts("\t-l list available signals");
 	puts("\t-m x plot whole module");
 	puts("\t-s x y - specify signals");
+	puts("\t--short - force short output");
 }
 
 void param_dump(param_t *par){

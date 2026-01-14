@@ -42,7 +42,10 @@ void vcd_mod_free(vcd_mod_t **mod);
 void vcd_mod_dump(vcd_mod_t *mod);
 void vcd_mod_dump_rec(vcd_mod_t *mod); //recursive 
 
-void vcd_mod_fprint(vcd_mod_t *mod, FILE *fd);
+// print to log files in .data dir.
+void vcd_mod_fprint(vcd_mod_t *mod);
+
+// print to fd shortly
 void vcd_mod_fprint_short(vcd_mod_t *mod, FILE *fd);
 
 /* VCD GLOBAL STRUCT */

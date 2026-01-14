@@ -41,9 +41,12 @@ int main(int argc, char **argv){
 		fd = fopen(par.out, "w");
 	}
 
-	// TODO change print_module to mod_print
-	if(par.module)
-		vcd_mod_fprint_short(vcd->mod[par.module_i], fd);
+	if(par.module){
+		if(par.sh)
+			vcd_mod_fprint_short(vcd->mod[par.module_i], fd);
+		else
+			vcd_mod_fprint(vcd->mod[par.module_i]);
+	}
 
 	if(par.signal)
 		vcd_sig_fprint(vcd->mod[par.x]->sig[par.y], fd);

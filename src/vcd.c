@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+static struct stat st = {0};
+
 
 #include "vcd.h"
 
@@ -129,24 +135,36 @@ void vcd_mod_fprint_short(vcd_mod_t *mod, FILE *fd){
 		vcd_sig_fprint(mod->sig[i], fd);
 }
 
-void vcd_mod_fprint(vcd_mod_t *mod, FILE *fd){
-	fprintf(fd, "#");
-
-	for(int i = 0; i < mod->len; ++i){
-		fprintf(fd, "%s\t", mod->sig[i]->name);
+void vcd_mod_fprint(vcd_mod_t *mod){
+	vcd_sig_t *sig = NULL;
+	//FILE *fd = NULL;
+	char fname[128] = {0};
+	if (stat(".data", &st) == -1) {
+		mkdir(".data", 0744);
 	}
 
-	fprintf(fd, "\n");
-	vcd_sig_t *sig = NULL;
+
 	for(int i = 0; i < mod->len; ++i){
 		sig = mod->sig[i];
+		memset(fname, 0x00, 128);
+		sprintf(fname, ".data/%s.txt", sig->name);
+
+		FILE *fd = fopen(fname, "w");
+		fprintf(fd, "#time");
+		for(int l = 0; l < sig->count; ++l)
+			fprintf(fd, "\t%d", l);
+
+		fprintf(fd, "\n");
+
 		for(int k = 0; k < sig->vlen; ++k){
 			fprintf(fd, "%d", sig->time[k]);
 			for(int l = 0; l < sig->count; ++l)
-				fprintf(fd, "\t%d", sig->val[k][l]);
+				fprintf(fd, "\t%d", sig->val[l][k]);
 
 			fprintf(fd, "\n");
 		}
+
+		fclose(fd);
 	}
 }
 

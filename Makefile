@@ -2,21 +2,19 @@ all: build
 
 
 build:
-	@gcc -Wall -ggdb -o vcd2svg -I src/ src/main.c src/svg.c src/vcd.c
-	#@./vcd2svg -l -i test.vcd
-	@./vcd2svg -s 0 0 -i test.vcd
+	@gcc -Wall -ggdb -o vcd2txt -I src/ src/main.c src/svg.c src/vcd.c
 
 test: build
-	@valgrind ./vcd2svg -i test.vcd
+	@valgrind ./vcd2txt -i test.vcd
 
 
 install: build
-	@cp vcd2svg /usr/bin/
-	@echo "Installed vcd2svg"
+	@cp vcd2txt /usr/bin/
+	@echo "Installed vcd2txt"
 
 uninstall: 
-	@rm vcd2svg /usr/bin/vcd2svg
-	@echo "Removed vcd2svg"
+	@rm vcd2txt /usr/bin/vcd2txt
+	@echo "Removed vcd2txt"
 
 clean:
 	@rm *.o
