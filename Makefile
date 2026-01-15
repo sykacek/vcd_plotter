@@ -4,6 +4,9 @@ all: build
 build:
 	@gcc -Wall -ggdb -o vcd2txt -I src/ src/main.c src/svg.c src/vcd.c
 
+debug:
+	@gcc -Wall -ggdb -o vcd2txt -DDEBUG -I src/ src/main.c src/svg.c src/vcd.c
+
 test: build
 	@valgrind ./vcd2txt -i test.vcd
 

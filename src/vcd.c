@@ -2,12 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-static struct stat st = {0};
-
 
 #include "vcd.h"
 
@@ -37,6 +31,7 @@ void vcd_sig_update_values(vcd_sig_t *sig, char *val, size_t len, float time){
 		fprintf(stderr, "len and count do not match! %ld %d, %s %s\n", len, sig->count, val, sig->name);
 #endif
 	} else {
+		// duplicate values with a bit smaller time 
 		sig->vlen++;
 		vcd_sig_resize(sig, sig->vlen);
 		for(int i = 0; i < sig->count; ++i){
@@ -46,7 +41,7 @@ void vcd_sig_update_values(vcd_sig_t *sig, char *val, size_t len, float time){
 				sig->val[i][sig->vlen - 1] = '0';
 		}
 
-		//update time
+		//update time and values
 		sig->time = realloc(sig->time, sizeof(float) * sig->vlen);
 		sig->time[sig->vlen - 1] = time - 0.01f;
 
@@ -55,10 +50,25 @@ void vcd_sig_update_values(vcd_sig_t *sig, char *val, size_t len, float time){
 		for(int i = 0; i < sig->count; ++i)
 			sig->val[i][sig->vlen - 1] = val[i];
 
-		//update time
 		sig->time = realloc(sig->time, sizeof(int) * sig->vlen);
 		sig->time[sig->vlen - 1] = time;
 	}
+}
+
+void vcd_sig_duplicate(vcd_sig_t *sig, float time){
+	// duplicate values
+	sig->vlen++;
+	vcd_sig_resize(sig, sig->vlen);
+	for(int i = 0; i < sig->count; ++i){
+		if(sig->vlen > 1)
+			sig->val[i][sig->vlen - 1] = sig->val[i][sig->vlen - 2];
+		else
+			sig->val[i][sig->vlen - 1] = '0';
+	}
+
+	sig->time = realloc(sig->time, sizeof(float) * sig->vlen);
+	sig->time[sig->vlen - 1] = time;
+
 }
 
 void vcd_sig_free(vcd_sig_t **sig){
@@ -152,13 +162,6 @@ void vcd_mod_fprint(vcd_mod_t *mod){
 	vcd_sig_t *sig = NULL;
 	//FILE *fd = NULL;
 	char fname[128] = {0};
-	if (stat(".data", &st) == -1) {
-		mkdir(".data", 0744);
-	} else {
-		remove(".data");
-		mkdir(".data", 0744);
-	}
-
 
 	for(int i = 0; i < mod->len; ++i){
 		sig = mod->sig[i];
@@ -290,6 +293,7 @@ vcd_t *vcd_read(char *file){
 			memset(mod, 0x00, 32);
 			memcpy(mod, line + 1, strlen(line) - 1);
 			now = atoi(mod);
+			vcd_update_sig_time(ret, (float)now);
 		}
 
 		// value update
@@ -302,12 +306,16 @@ vcd_t *vcd_read(char *file){
 
 				vcd_update_sig(ret, id, val + 1, strlen(val) - 1, (float)now);
 			} else {
-				vcd_update_sig(ret, line[1], line, 1, now);
+				vcd_update_sig(ret, line[1], line, 1, (float)now);
 			}
 
 			//printf("%s", line);
 		}
 	}
+
+	printf("exiting with time %d\n", now);
+
+	// DRAW A BIT MORE OF SIGNAL
 
 	if(line)
 		free(line);
@@ -381,4 +389,20 @@ void vcd_update_sig(vcd_t *vcd, char c, char *val, size_t n, float time){
 			}
 		}
 	}
+}
+
+void vcd_update_sig_time(vcd_t *vcd, float time){
+	vcd_mod_t *mod = NULL;
+	vcd_sig_t *sig = NULL;
+
+	// find signal which corresponds to c
+	for(int i = 0; i < vcd->len; ++i){
+		mod = vcd->mod[i];
+
+		for(int j = 0; j < mod->len; ++j){
+			sig = mod->sig[j];
+			vcd_sig_duplicate(sig, time);
+		}
+	}
+
 }

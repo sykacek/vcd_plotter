@@ -24,8 +24,11 @@ typedef struct {
 vcd_sig_t *vcd_sig_init(void);
 void vcd_sig_free(vcd_sig_t **sig);
 
-// update values array;
+// update values array with new values
 void vcd_sig_update_values(vcd_sig_t *sig, char *val, size_t len, float time);
+
+// for integrity duplicate previous values with time
+void vcd_sig_duplicate(vcd_sig_t *sig, float time);
 
 void vcd_sig_dump(vcd_sig_t *sig);
 
@@ -70,8 +73,11 @@ void vcd_dump_rec(vcd_t *vcd); // recursive dump
 
 // print signals in hierarchy
 void vcd_print_list(vcd_t *vcd);
-// update signal using c
+
+// update signal values and time
 void vcd_update_sig(vcd_t *vcd, char c, char *val, size_t n, float time);
+
+void vcd_update_sig_time(vcd_t *vcd, float time);
 
 #endif //__VCD_H__
 
